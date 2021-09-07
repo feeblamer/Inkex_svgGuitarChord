@@ -34,7 +34,7 @@ GAP_STRINGS = 18
 def frets_path(coordinates, lenth_in_frets):
     path = f'M {str(coordinates[0])} , {str(coordinates[1])} h {FINGERBOARD_WIDTH}'
     for s in range(lenth_in_frets):
-        path += f'm -{FINGERBOARD_WIDTH},32 h {FINGERBOARD_WIDTH}'
+        path += f'm -{FINGERBOARD_WIDTH},{FRET_WIDTH} h {FINGERBOARD_WIDTH}'
     return path
 
 
@@ -66,10 +66,10 @@ def create_nut(coordinates):
         'color': '#a85632',
         'fill': 'none',
         'stroke': '#a85632',
-             'stroke-width': '3.2',
+        'stroke-width': '3.2',
         'stroke-linecap': 'round',
     }
-    path = f'M {str(coordinates[0])}, {str(coordinates[1])} h 90 '
+    path = f'M {str(coordinates[0])}, {str(coordinates[1])} h {FINGERBOARD_WIDTH} '
     return {'d': path, 'style': str(inkex.Style(style))}
 
 
@@ -82,7 +82,7 @@ def create_header(coordinates):
             'x': str(coordinates[0]), 'y': str(coordinates[1])}
 
 
-def create_tuning(coor):
+def create_tuning_labels(coor):
     textstyle = {'font-size': '8',
                  'font-family': 'Libertinus Serif',
                  'text-anchor': 'middle',
@@ -112,7 +112,7 @@ def create_per_string_comments(coordinates, length_in_frets):
     return comments_coordinates
 
 
-def create_first_fret_indication(coor):
+def create_first_fret_label(coor):
     textstyle = {'font-size': '8', 'font-family': 'Latin Modern Roman',
                  'font-weight': 'bold', 'text-anchor': 'end', 'fill': '#000000'}
     return {'style': str(inkex.Style(textstyle)),
@@ -125,52 +125,51 @@ def fret_to_text(fret_number):
     return romans[fret_number - 1]
 
 
-def createCapo2(coor):
+def create_capo_path(coordinates, upper_lef_corner_grid):
     style = {'color': '#000000', 'fill': 'none', 'stroke': '#000000',
              'stroke-width': '1.6', 'stroke-linecap': 'round'}
-    path = 'M ' + str(coor[0]) + ',' + str(coor[1]) + ' v 4 ' \
-                                                      'm 18,-4 v 4 m 18,-4 v 4 m 18,-4 v 4 m 18,-4 v 4 m 18,-4 v 4'
+    length_string = upper_lef_corner_grid[1] - coordinates[1]
+    path = f'M {str(coordinates[0])} , {str(coordinates[1])} v {length_string} m {GAP_STRINGS},-{length_string} v {length_string} m {GAP_STRINGS},-{length_string} v {length_string} m {GAP_STRINGS},-{length_string} v {length_string} m {GAP_STRINGS},-{length_string} v {length_string} m {GAP_STRINGS},-{length_string} v {length_string}'
     return {'d': path, 'style': str(inkex.Style(style))}
 
 
-def createCapoPos(coor):
+def create_capo_label(coor):
     textstyle = {'font-size': '8', 'font-family': 'Latin Modern Roman',
                  'font-weight': 'bold', 'text-anchor': 'end', 'fill': '#000000'}
     return {'style': str(inkex.Style(textstyle)),
             'x': str(coor[0] - 5), 'y': str(coor[1] + 4)}
 
 
-def createXAt(xp, coor):
+def createXAt(coordinates):
     style = {'color': '#000000', 'fill': 'none', 'stroke': '#000000',
              'stroke-width': '1.1', 'stroke-linecap': 'round'}
-    path = 'M ' + str(coor[xp][0]) + ',' + str(coor[xp][1]) + ' m 4,4 ' \
-                                                              'l -8,-8 M ' + str(coor[xp][0]) + ',' + str(
-        coor[xp][1]) + '' \
-                       'm -4,4 l 8,-8'
+    path = 'M ' + str(coordinates[0]) + ',' + str(coordinates[1]) + ' m 4,4 ' \
+                                                                    'l -8,-8 M ' + str(coordinates[0]) + ',' + str(
+        coordinates[1]) + '' \
+                          'm -4,4 l 8,-8'
     return {'d': path, 'style': str(inkex.Style(style))}
 
 
-def create0At(op, coor):
+def create0At(coor):
     style = {'color': '#000000', 'fill': 'none', 'stroke': '#000000',
              'stroke-width': '1.1', 'stroke-linecap': 'round'}
-    path = 'M ' + str(coor[op][0]) + ',' + str(coor[op][1]) + ' m -4,0 ' \
-                                                              'a 4,4 0 1, 0 8 0 a 4,4 0 1, 0 -8 0'
+    path = 'M ' + str(coor[0]) + ',' + str(coor[1]) + ' m -4,0 ' \
+                                                      'a 4,4 0 1, 0 8 0 a 4,4 0 1, 0 -8 0'
     return {'d': path, 'style': str(inkex.Style(style))}
 
 
-def createStringPressedAt(fp, coor):
+def createStringPressedAt(coor):
     style = {'color': '#000000', 'fill': '#000000'}
-    path = 'M ' + str(coor[fp[0]][fp[1]][0]) + ',' \
-           + str(coor[fp[0]][fp[1]][1]) + ' m -6,0 ' \
+    path = 'M ' + str(coor[0]) + ','+ str(coor[1]) + ' m -6,0 ' \
                                           'a 6,6 0 1, 0 12 0 a 6,6 0 1, 0 -12 0'
     return {'d': path, 'style': str(inkex.Style(style))}
 
 
-def leftFingerNumberAt(fp, coor):
+def leftFingerNumberAt(coor):
     textstyle = {'font-size': '8', 'font-family': 'Latin Modern Roman',
                  'font-weight': 'bold', 'text-anchor': 'start', 'fill': '#000000'}
     return {'style': str(inkex.Style(textstyle)),
-            'x': str(coor[fp[0]][fp[1]][0]), 'y': str(coor[fp[0]][fp[1]][1])}
+            'x': str(coor[0]), 'y': str(coor[1])}
 
 
 def createBarreAt(bp, coor):
@@ -211,9 +210,7 @@ class SVGGuitarChord(inkex.Effect):
         self.arg_parser.add_argument("--fifthStringFinger", type=str, default='x', dest="fifthStringFinger")
         self.arg_parser.add_argument("--sixthStringFret", type=str, default='x', dest="sixthStringFret")
         self.arg_parser.add_argument("--sixthStringFinger", type=str, default='x', dest="sixthStringFinger")
-        self.upper_left_corner_grid = [60, 50]
-
-
+        self.upper_left_corner_grid = [30, 30]
 
     def add_grid_to_svg_tree(self):
         attribs_grid = create_grid(self.options.nFrets, self.upper_left_corner_grid)
@@ -222,11 +219,11 @@ class SVGGuitarChord(inkex.Effect):
             inkex.addNS('path', 'svg'),
             attribs_grid,
         )
-        debug_text = etree.SubElement(
-            self.svg.get_current_layer(),
-            'text',
-        )
-        debug_text.text = str(attribs_grid)
+        # debug_text = etree.SubElement(
+        #      self.svg.get_current_layer(),
+        #      'text',
+        #  )
+        # debug_text.text = self.get_pressed_frets_on_strings() +'\n' +self.get_muted_strings() + '\n' + self.get_opened_strings()
 
     def add_nut_to_svg_tree(self):
         if self.options.firstFret == 1 and self.options.capoPos == 'No':
@@ -237,234 +234,288 @@ class SVGGuitarChord(inkex.Effect):
                 attribs_nut,
             )
 
-    def effect(self):
-        #  Coordinates of capo, if applicable
-        ulc = list(self.upper_left_corner_grid)
-        #
-        # CapoPos to int
-        if self.options.capoPos != 'No':
-            capoPos2 = int(self.options.capoPos)
-        else:
-            capoPos2 = 0
-        #
-        #         # Corrected coordinates if there is a Capo
-        if self.options.capoPos != 'No' \
-                and not self.options.firstFret > capoPos2 + 1:
-            ulc[1] = self.upper_left_corner_grid[1] - 4
-        else:
-            ulc[1] = self.upper_left_corner_grid[1]
-        #
-        #         # Coordinates of header
-        #
-        if self.options.tuningTrue:
-            self.header_coordinates = (ulc[0] + 45, ulc[1] - 20)
-        else:
-            self.header_coordinates = (ulc[0] + 45, ulc[1] - 15)
-        # НЕ ИЗУЧЕНЫЙ ФРАГМЕНТ
-             # Coordinates of tuning indication
-        ct = [[ulc[0]+90, ulc[1]-13], [ulc[0]+72, ulc[1]-13],
-                 [ulc[0]+54, ulc[1]-13], [ulc[0]+36, ulc[1]-13],
-                 [ulc[0]+18, ulc[1]-13], [ulc[0], ulc[1]-13]]
-        #
-             # Possible coordinates of pressed strings
-        #
-        pfp = [ [ [self.upper_left_corner_grid[0]+90, self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0]+90, self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0]+90, self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0]+90, self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0]+90, self.upper_left_corner_grid[1]+148] ],
-            [ [self.upper_left_corner_grid[0]+72, self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0]+72, self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0]+72, self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0]+72, self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0]+72, self.upper_left_corner_grid[1]+148] ],
-            [ [self.upper_left_corner_grid[0]+54, self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0]+54, self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0]+54, self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0]+54, self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0]+54, self.upper_left_corner_grid[1]+148] ],
-            [ [self.upper_left_corner_grid[0]+36, self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0]+36, self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0]+36, self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0]+36, self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0]+36, self.upper_left_corner_grid[1]+148] ],
-            [ [self.upper_left_corner_grid[0]+18, self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0]+18, self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0]+18, self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0]+18, self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0]+18, self.upper_left_corner_grid[1]+148] ],
-            [ [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1]+20], [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1]+52],
-            [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1]+84], [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1]+116], [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1]+148] ] ]
-   #
-        # Possible coordinates of finger numbers
-        pfn = [[] for n in range(6)]
-        for n in range(6):
-            pfn[n] = [ [] for m in range(5)]
-        for n in range(6):
-            for m in range(5):
-                pfn[n][m].append(pfp[n][m][0]+2)
-                pfn[n][m].append(pfp[n][m][1]-6.5)
-   #
-        # Coordinates of mute and open strings
-        xAnd0 = [[ulc[0]+90, ulc[1]-7], [ulc[0]+72, ulc[1]-7],
-            [ulc[0]+54, ulc[1]-7], [ulc[0]+36, ulc[1]-7],
-            [ulc[0]+18, ulc[1]-7], [ulc[0], ulc[1]-7]]
-   #
-        # Fret and finger per string
-        fretFinger = [{'fret':self.options.firstStringFret,
-            'finger':self.options.firstStringFinger},
-            {'fret':self.options.secondStringFret,
-            'finger':self.options.secondStringFinger},
-            {'fret':self.options.thirdStringFret,
-            'finger':self.options.thirdStringFinger},
-            {'fret':self.options.fourthStringFret,
-            'finger':self.options.fourthStringFinger},
-            {'fret':self.options.fifthStringFret,
-            'finger':self.options.fifthStringFinger},
-            {'fret':self.options.sixthStringFret,
-            'finger':self.options.sixthStringFinger}]
-   #
-        # Create list of lists [nString, nFret]
-        nStringFret = []
-        for n in range(6):
-            if fretFinger[n]['fret'] != 'x' and fretFinger[n]['fret'] != '0':
-                nStringFret.append([n, int(fretFinger[n]['fret'])-1])
-   #
-        # Increase the number of frets in the grid automatically, if needed
-        frets = []
-        for n in range(len(nStringFret)):
-            frets.append(nStringFret[n][1])
-        if len(frets) > 0 and (max(frets) + 1) > self.options.nFrets:
-            self.options.nFrets = max(frets) + 1
-   #
-        # Create list with muted strings
-        nStringX = []
-        for n in range(6):
-            if fretFinger[n]['fret']=='x':
-                nStringX.append(n)
-   #
-        # Create list with open strings
-        nString0 = []
-        for n in range(6):
-            if fretFinger[n]['fret']=='0':
-                nString0.append(n)
-   #
-        #Barres
-        stringBarre = []
-        fretBarre = []
-        for n in range(6):
-            for m in range(n+1, 6):
-                if fretFinger[n]['fret']!='x' and fretFinger[n]['fret']!='0'\
-                    and fretFinger[n]['finger'] != 'x'\
-                    and fretFinger[n]['finger'] == fretFinger[m]['finger']:
-                        stringBarre.append(n)
-                        stringBarre.append(m)
-                        fretBarre.append(int(fretFinger[n]['fret'])-1)
-                        fretBarre.append(int(fretFinger[m]['fret'])-1)
-                        break
-        zipped = list(zip(stringBarre, fretBarre))
-        barres = []
-        for n in range(0, len(stringBarre)-1, 2):
-            barres.append(zipped[n] + zipped[n+1])
-   #
-        # Tuning
-        tuning = self.options.tuning.split('-')
-        tuning.reverse()
-   #
-   #
-        # Comments per String
-        perStringComments = self.options.perStringComments.split('-')
-        #perStringComments.reverse()
-        # КОНЕЦ НЕ ИЗЧЕННОГО ФРАГМЕНТА
-
-        #  Add Grid
-        self.add_grid_to_svg_tree()
-        #  Create Nut
-        self.add_nut_to_svg_tree()
-        #НЕ ИЗУЧЕНЫЙ ФРАГМЕНТ
-
-        #         ## Create first fret indication
-        if (self.options.firstFret!=1 and self.options.capoPos == 'No')\
-            or (self.options.firstFret > capoPos2 + 1\
-            and self.options.capoPos != 'No'):
-            attribs_firstFret = create_first_fret_indication(self.upper_left_corner_grid)
+    def add_first_fret_label_to_svg_tree(self):
+        is_visible = (
+                             self.options.firstFret != 1 and self.options.capoPos == 'No'
+                     ) or (
+                             self.options.firstFret > self.capoPos2 + 1 and self.options.capoPos != 'No'
+                     )
+        if is_visible:
+            attribs_firstFret = create_first_fret_label(self.upper_left_corner_grid)
             textFirstFret = etree.SubElement(self.svg.get_current_layer(),
-                'text', attribs_firstFret)
+                                             'text', attribs_firstFret)
             textFirstFret.text = fret_to_text(self.options.firstFret)
-        #
-        ## Create capo indication
+
+    def add_capo_label_to_svg_tree(self):
         if self.options.capoPos != 'No':
-            attribs_capoPos = createCapoPos(ulc)
+            attribs_capoPos = create_capo_label(self.capo_upper_left_corner_coordinates)
             textCapoPos = etree.SubElement(self.svg.get_current_layer(),
-                'text', attribs_capoPos)
-            textCapoPos.text = 'C ' + fret_to_text(capoPos2)
-        #
-        ## Create capo
-        if self.options.capoPos != 'No' and\
-                not (self.options.firstFret > capoPos2 + 1):
-            attribs_capo1 = create_nut(ulc)
+                                           'text', attribs_capoPos)
+            textCapoPos.text = 'C ' + fret_to_text(self.capoPos2)
+
+    def add_capo_path_to_svg_tree(self):
+        if self.options.capoPos != 'No' and not (self.options.firstFret > self.capoPos2 + 1):
+            attribs_capo1 = create_nut(self.capo_upper_left_corner_coordinates)
             etree.SubElement(self.svg.get_current_layer(),
-                inkex.addNS('path','svg'), attribs_capo1)
-            attribs_capo2 = createCapo2(ulc)
+                             inkex.addNS('path', 'svg'), attribs_capo1)
+            attribs_capo2 = create_capo_path(self.capo_upper_left_corner_coordinates, self.upper_left_corner_grid)
             etree.SubElement(self.svg.get_current_layer(),
-                inkex.addNS('path','svg'), attribs_capo2)
-        # КОНЕЦ НЕИЗУЧЕННОГО ФРАГМЕНТА
-        #         ## Create Header
+                             inkex.addNS('path', 'svg'), attribs_capo2)
+
+    def add_chord_label_to_svg_tree(self):
         if self.options.headerTrue:
             attribs_header = create_header(self.header_coordinates)
             textHeader = etree.SubElement(self.svg.get_current_layer(),
                                           'text', attribs_header)
             textHeader.text = self.options.header
 
-
-#НЕ ИЗУЧЕНЫЙ ФРАГМЕНТ
-#
-#         ## Create Tuning
+    def add_tuning_labels_to_svg_tree(self):
         if self.options.tuningTrue:
-            attribs_tuning = create_tuning(ct)
+            attribs_tuning = create_tuning_labels(self.tuning_label_coordinates)
+            tuning = self.options.tuning.split('-')
             try:
                 for n in range(6):
-                    tuning[n]
-                for n in range(6):
                     textTuning = etree.SubElement(self.svg.get_current_layer(),
-                        'text', attribs_tuning[n])
+                                                  'text', attribs_tuning[n])
                     textTuning.text = tuning[n]
             except IndexError:
-                inkex.debug("WARNING: Wrong tuning input.\n"\
-                    "Use 5 hyphens to separate notes. Example: E-A-D-G-B-E")
-#
-        ## Create per string comments
+                inkex.debug("WARNING: Wrong tuning input.\nUse 5 hyphens to separate notes. Example: E-A-D-G-B-E")
+
+    def add_string_comment_to_svg_tree(self):
         if self.options.perStringCommentsTrue:
             attribs_psComments = create_per_string_comments(self.upper_left_corner_grid, self.options.nFrets)
+            perStringComments = self.options.perStringComments.split('-')
             try:
                 for n in range(6):
                     textTuning = etree.SubElement(self.svg.get_current_layer(),
-                        'text', attribs_psComments[n])
+                                                  'text', attribs_psComments[n])
                     textTuning.text = perStringComments[n]
             except IndexError:
-                inkex.debug("WARNING: Wrong comments input.\n"\
-                    "Use 5 hyphens as separators. A blank space leaves\n"\
-                    "a string without a comment. Example: R-5-R- - -5")
-#
-        # Create string pressed
-        for n in range(len(nStringFret)):
-            attribs_stringPressed = createStringPressedAt(nStringFret[n], pfp)
+                inkex.debug("WARNING: Wrong comments input.\nUse 5 hyphens as separators. A blank space leaves\na string without a comment. Example: R-5-R- - -5")
+
+    def add_mute_string_label_to_svg_tree(self):
+        muted_strings = self.get_muted_strings()
+        for string_number in muted_strings:
+            attribs_x = createXAt(self.X0_label_coordinates(string_number))
             etree.SubElement(self.svg.get_current_layer(),
-                inkex.addNS('path','svg'), attribs_stringPressed)
-#
-        # Create left finger number
-        for n in range(len(nStringFret)):
-            if self.options.leftFingerNumberTrue and\
-            fretFinger[nStringFret[n][0]]['finger']!='x':
-                attribs_leftFinger = leftFingerNumberAt(nStringFret[n], pfn)
+                             inkex.addNS('path', 'svg'), attribs_x)
+
+    def add_open_string_label_to_svg_tree(self):
+        opened_strings = self.get_opened_strings()
+        for number in opened_strings:
+            attribs_o = create0At(self.X0_label_coordinates(number))
+            etree.SubElement(self.svg.get_current_layer(),
+                             inkex.addNS('path', 'svg'), attribs_o)
+
+    def add_pressed_fret_to_svg_tree(self):
+        nStringFret = self.get_pressed_frets_on_strings()
+        for ns, nf in nStringFret.items():
+            attribs_stringPressed = createStringPressedAt(self.get_pressd_fret_coordinates(ns, nf))
+            etree.SubElement(self.svg.get_current_layer(),
+                             inkex.addNS('path', 'svg'), attribs_stringPressed)
+
+    def add_left_hand_finger_lables_to_svg_tree(self):
+        nStringFret = self.get_pressed_frets_on_strings()
+        for string_number, finger_number in nStringFret.items():
+            if self.options.leftFingerNumberTrue:
+                attribs_leftFinger = leftFingerNumberAt(self.get_finger_label_coordinates(string_number, finger_number))
                 textLeftFinger = etree.SubElement(self.svg.get_current_layer(),
-                    'text', attribs_leftFinger)
-                textLeftFinger.text = fretFinger[nStringFret[n][0]]['finger']
-#
-        ## Create X (muted string)
-        for n in range(len(nStringX)):
-            attribs_x = createXAt(nStringX[n], xAnd0)
-            etree.SubElement(self.svg.get_current_layer(),
-                inkex.addNS('path','svg'), attribs_x)
-#
-        ## Create O (open string)
-        for n in range(len(nString0)):
-            attribs_o = create0At(nString0[n], xAnd0)
-            etree.SubElement(self.svg.get_current_layer(),
-                inkex.addNS('path','svg'), attribs_o)
-#
+                                                  'text', attribs_leftFinger)
+                textLeftFinger.text = str(finger_number)
+
+
+    @property
+    def capo_upper_left_corner_coordinates(self):
+        #  Coordinates of capo, if applicable
+        ulc = list(self.upper_left_corner_grid)
+        # Corrected coordinates if there is a Capo
+        if self.options.capoPos != 'No' and not self.options.firstFret > self.capoPos2 + 1:
+            ulc[1] = self.upper_left_corner_grid[1] - 10
+        else:
+            ulc[1] = self.upper_left_corner_grid[1]
+        return ulc
+
+    @property
+    def header_coordinates(self):
+        if self.options.tuningTrue:
+            header_coordinates = (
+                self.capo_upper_left_corner_coordinates[0] + 45,
+                self.capo_upper_left_corner_coordinates[1] - 25,
+            )
+        else:
+            header_coordinates = (
+                self.capo_upper_left_corner_coordinates[0] + 45,
+                self.capo_upper_left_corner_coordinates[1] - 15,
+            )
+        return header_coordinates
+
+    @property
+    def tuning_label_coordinates(self):
+        label_margin = 15
+        ct = []
+        for i in range(6):
+            ct.append(
+                [
+                    self.capo_upper_left_corner_coordinates[0] + i * GAP_STRINGS,
+                    self.capo_upper_left_corner_coordinates[1] - label_margin,
+                ]
+            )
+        return ct
+
+    @property
+    def strings_frets(self):
+        return {
+            1: self.options.firstStringFret,
+            2: self.options.secondStringFret,
+            3: self.options.thirdStringFret,
+            4: self.options.fourthStringFret,
+            5: self.options.fifthStringFret,
+            6: self.options.sixthStringFret,
+        }
+
+    @property
+    def strings_fingers(self):
+        return {
+            1: self.options.firstStringFinger,
+            2: self.options.secondStringFinger,
+            3: self.options.thirdStringFinger,
+            4: self.options.fourthStringFinger,
+            5: self.options.fifthStringFinger,
+            6: self.options.sixthStringFinger,
+        }
+    def get_used_fingers(self):
+       return {sn: int(f) for sn, f in self.strings_fingers.items() if f.isdigit()}
+
+    def get_pressed_frets_on_strings(self):
+        return {sn: int(sf) for sn, sf in self.strings_frets.items() if sf.isdigit() and sf != '0'}
+
+    def get_muted_strings(self):
+        return [sn for sn, sf in self.strings_frets.items() if sf == 'x']
+
+    def get_opened_strings(self):
+        return [sn for sn, sf in self.strings_frets.items() if sf == '0']
+
+    def X0_label_coordinates(self, string_number):
+        margin = 7
+        x = self.capo_upper_left_corner_coordinates[0] + FINGERBOARD_WIDTH - (string_number - 1) * GAP_STRINGS
+        y = self.capo_upper_left_corner_coordinates[1] - margin
+        return [x, y]
+
+    def get_pressd_fret_coordinates(self, number_string, number_fret):
+        shift = 20
+        x = self.upper_left_corner_grid[0] + FINGERBOARD_WIDTH - (number_string - 1) * GAP_STRINGS
+        y = self.upper_left_corner_grid[1] + shift + (number_fret - 1) * FRET_WIDTH
+        return [x, y]
+
+    def get_finger_label_coordinates(self, number_string, number_finger):
+        shift = 25
+        x = self.upper_left_corner_grid[0] + FINGERBOARD_WIDTH - (number_string - 1) * GAP_STRINGS + 7
+        y = self.upper_left_corner_grid[1] + shift + (number_finger - 1) * FRET_WIDTH + 5
+        return [x, y]
+
+    def effect(self):
+        self.capoPos2 = int(self.options.capoPos) if self.options.capoPos != 'No' else 0
+
+        # Possible coordinates of pressed strings
+        #
+        pfp = [
+            [
+                [self.upper_left_corner_grid[0] + 90, self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0] + 90, self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0] + 90, self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0] + 90, self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0] + 90, self.upper_left_corner_grid[1] + 148]
+            ],
+            [
+                [self.upper_left_corner_grid[0] + 72, self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0] + 72, self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0] + 72, self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0] + 72, self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0] + 72, self.upper_left_corner_grid[1] + 148]
+            ],
+            [
+                [self.upper_left_corner_grid[0] + 54, self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0] + 54, self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0] + 54, self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0] + 54, self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0] + 54, self.upper_left_corner_grid[1] + 148]
+            ],
+            [
+                [self.upper_left_corner_grid[0] + 36, self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0] + 36, self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0] + 36, self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0] + 36, self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0] + 36, self.upper_left_corner_grid[1] + 148]
+            ],
+            [
+                [self.upper_left_corner_grid[0] + 18, self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0] + 18, self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0] + 18, self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0] + 18, self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0] + 18, self.upper_left_corner_grid[1] + 148]
+            ],
+            [
+                [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1] + 20],
+                [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1] + 52],
+                [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1] + 84],
+                [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1] + 116],
+                [self.upper_left_corner_grid[0], self.upper_left_corner_grid[1] + 148]
+            ]
+        ]
+
+        # Fret and finger per string
+        fretFinger = [{'fret': self.options.firstStringFret,
+                       'finger': self.options.firstStringFinger},
+                      {'fret': self.options.secondStringFret,
+                       'finger': self.options.secondStringFinger},
+                      {'fret': self.options.thirdStringFret,
+                       'finger': self.options.thirdStringFinger},
+                      {'fret': self.options.fourthStringFret,
+                       'finger': self.options.fourthStringFinger},
+                      {'fret': self.options.fifthStringFret,
+                       'finger': self.options.fifthStringFinger},
+                      {'fret': self.options.sixthStringFret,
+                       'finger': self.options.sixthStringFinger}]
+
+        # Barres
+        stringBarre = []
+        fretBarre = []
+        for n in range(6):
+            for m in range(n + 1, 6):
+                if fretFinger[n]['fret'] != 'x' and fretFinger[n]['fret'] != '0' \
+                        and fretFinger[n]['finger'] != 'x' \
+                        and fretFinger[n]['finger'] == fretFinger[m]['finger']:
+                    stringBarre.append(n)
+                    stringBarre.append(m)
+                    fretBarre.append(int(fretFinger[n]['fret']) - 1)
+                    fretBarre.append(int(fretFinger[m]['fret']) - 1)
+                    break
+        zipped = list(zip(stringBarre, fretBarre))
+        barres = []
+        for n in range(0, len(stringBarre) - 1, 2):
+            barres.append(zipped[n] + zipped[n + 1])
+
+        self.add_grid_to_svg_tree()
+        self.add_nut_to_svg_tree()
+        self.add_first_fret_label_to_svg_tree()
+        self.add_capo_label_to_svg_tree()
+        self.add_capo_path_to_svg_tree()
+        self.add_chord_label_to_svg_tree()
+        self.add_tuning_labels_to_svg_tree()
+        self.add_string_comment_to_svg_tree()
+        self.add_mute_string_label_to_svg_tree()
+        self.add_open_string_label_to_svg_tree()
+        self.add_pressed_fret_to_svg_tree()
+        self.add_left_hand_finger_lables_to_svg_tree()
+
         ## Create barre
         if len(barres) != 0:
             for n in range(len(barres)):
                 attribs_barre = createBarreAt(barres[n], pfp)
                 etree.SubElement(self.svg.get_current_layer(),
-                    inkex.addNS('path','svg'), attribs_barre)
-# КОНЕЦ НЕИЗУЧЕННОГО ФРАГМЕНТА
+                                 inkex.addNS('path', 'svg'), attribs_barre)
+
+
 #
 if __name__ == '__main__':
     e = SVGGuitarChord()
